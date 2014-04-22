@@ -46,14 +46,32 @@ jOWL.NS = function(prefix, URI){
 		return;
 	}
 	jOWL.NS[prefix] = function(element){
-		if(element){
+		if(element) {
 			return (arguments.callee.prefix == 'base') ? element : arguments.callee.prefix + ":" + element;
-			}
+			//return (arguments.callee.prefix == 'base') ? element : arguments.callee.URI + element; //XXX tohle nejde, protoze se to tu predhazuje xPath jako argument (je treba najit a vyescapovat =( )
+		}
 		return arguments.callee.URI;
-		};
+	};
 	jOWL.NS[prefix].prefix = prefix;
 	jOWL.NS[prefix].URI = URI;	
 };
+
+//jOWL.NS.perfix2uri = function (prefix) {
+//  if ( prefix && prefix in jOWL.NS ) {
+//    return jOWL.NS[prefix].uri;
+//  }
+//  return null;
+//}
+
+jOWL.NS.uri2prefix = function (uri) {
+  for ( ns in jOWL.NS ) {
+    ns = jOWL.NS[ns];
+    if ( ns.prefix && ns.URI && ns.URI == uri ) {
+      return ns.prefix;
+    }
+  }
+  return null;
+}
 
 var __ = jOWL.NS;
 
@@ -123,20 +141,24 @@ if( document.implementation.hasFeature("XPath", "3.0") ){
 	XMLDocument.prototype.selectNodes = function(cXPathString, xNode){
 		if( !xNode ){ xNode = this;}
 		var oNSResolver = this.createNSResolver(this.documentElement);
-		var aItems = this.evaluate(cXPathString, xNode, oNSResolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); var aResult = []; for( var i = 0; i < aItems.snapshotLength; i++){ aResult[i] = aItems.snapshotItem(i);}  
+		var aItems = this.evaluate(cXPathString, xNode, oNSResolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+    var aResult = [];
+    for( var i = 0; i < aItems.snapshotLength; i++){
+      aResult[i] = aItems.snapshotItem(i);
+    }  
 		return aResult; 
-		};
+	};
 	Element.prototype.selectNodes = function(cXPathString){  
 		if(this.ownerDocument.selectNodes)  {  return this.ownerDocument.selectNodes(cXPathString, this);}
 		else{throw "For XML Elements Only";} 
-		}; 
+	}; 
 	XMLDocument.prototype.selectSingleNode = function(cXPathString, xNode){ if( !xNode ){ xNode = this;}
 		var xItems = this.selectNodes(cXPathString, xNode); if( xItems.length > 0 ){  return xItems[0];} else {  return null;}
-		};
+	};
 	Element.prototype.selectSingleNode = function(cXPathString){
 		if(this.ownerDocument.selectSingleNode)  {  return this.ownerDocument.selectSingleNode(cXPathString, this);}
 		else{throw "For XML Elements Only";} 
-		};  
+	};  
 }
 
 /** @return A jQuery array of xml elements */
@@ -222,11 +244,11 @@ jOWL.Ontology.Thing.prototype = {
 		if(typeof jnode == 'string'){
 			identifier = jnode;
 			jnode = $();
-			}
-		else {
+		} else {
 			identifier = jnode.RDF_ID() || jnode.RDF_About();
-			if(!identifier){identifier = "anonymousOntologyObject";
-			this.isAnonymous = true;
+			if(!identifier){
+        identifier = "anonymousOntologyObject";
+			  this.isAnonymous = true;
 			}
 		}
 		identifier = jOWL.resolveURI(identifier);
@@ -319,8 +341,7 @@ jOWL.Ontology.Individual = function(jnode, owlclass){
 	var t = jOWL.Xpath(__.rdf('type'), this.jnode);
 		if(!t.length){ throw "unable to find a Class for the Individual "+this.name;}
 		this.Class = $(t[0]).RDF_Resource();
-	}
-	else {
+	} else {
 		this.Class = jOWL.resolveURI(jnode.get(0));
 	}
 	this.type = __.owl("Thing");
@@ -541,9 +562,9 @@ jOWL.Ontology.Datatype(__.xsd()+"integer", {sanitize : function(x){return  parse
 	} catch(e){ return false;}
 } });
 jOWL.Ontology.Datatype(__.xsd()+"positiveInteger", {base: __.xsd()+"integer", assert : function(x){ return x > 0;} });
-jOWL.Ontology.Datatype(__.xsd()+"decimal", {base: __.xsd()+"integer" });
-jOWL.Ontology.Datatype(__.xsd()+"float", {base: __.xsd()+"integer" });
-jOWL.Ontology.Datatype(__.xsd()+"double", {base: __.xsd()+"integer" });
+jOWL.Ontology.Datatype(__.xsd()+"decimal",         {base: __.xsd()+"integer" });
+jOWL.Ontology.Datatype(__.xsd()+"float",           {base: __.xsd()+"integer" });
+jOWL.Ontology.Datatype(__.xsd()+"double",          {base: __.xsd()+"integer" });
 jOWL.Ontology.Datatype(__.xsd()+"negativeInteger", {base: __.xsd()+"integer", assert : function(x){ return x < 0;} });
 jOWL.Ontology.Datatype(__.xsd()+"nonNegativeInteger", {base: __.xsd()+"integer", assert : function(x){ return x >= 0;} });
 jOWL.Ontology.Datatype(__.xsd()+"nonPositiveInteger", {base: __.xsd()+"integer", assert : function(x){ return x <= 0;} });
@@ -1247,11 +1268,12 @@ jOWL.load = function(path, callback, options){
 		xml.validateOnParse = false; //IE throws DTD errors (for 'rdf:') on perfectly defined OWL files otherwise
 		xml.src = path;
 		xml.onreadystatechange = function(){
-			if(xml.readyState == "interactive"){ var xmldoc = xml.XMLDocument; document.body.removeChild(xml);callback(that.parse(xmldoc, options));}
-			};
+      if(xml.readyState == "interactive"){
+        var xmldoc = xml.XMLDocument; document.body.removeChild(xml);callback(that.parse(xmldoc, options));
+      }
+		};
 		document.body.appendChild(xml);
-		}
-	else {
+	} else {
 		$.get(path, function(xml){callback(that.parse(xml, options));});
 	}
 };
@@ -1269,7 +1291,7 @@ jOWL.parse = function(doc, options){
 	jOWL.document = doc;
 	if($.browser.msie){
 		if(doc.parseError.errorCode !== 0){ jOWL.options.onParseError(doc.parseError.reason); return false;}
-		}
+	}
 	else if(doc.documentElement.nodeName == 'parsererror'){jOWL.options.onParseError(doc.documentElement.firstChild.nodeValue); return false;}
 	var root = $(doc.documentElement);
 	jOWL.NS(root);
@@ -1316,10 +1338,12 @@ jOWL.isExternal = function(resource){
 };
 
 /** 
-if a URI belongs to the loaded namespace, then strips the prefix url of, else preserves URI 
+if a URI belongs to the loaded namespace, then strips the prefix url off, else preserves URI 
 also able to parse and reference html (or jquery) elements for their URI.
+XXX also minimizes uri to prefix if prefix is loaded
 */
-jOWL.resolveURI = function(URI, array){
+jOWL.resolveURI = function(URI, array, prefix){
+  if(!URI) return null;
 	if(typeof URI != "string"){
 		var node = URI.jquery ? URI.get(0) : URI;
 		URI = node.localName || node.baseName;
@@ -1336,6 +1360,14 @@ jOWL.resolveURI = function(URI, array){
 			rs = URI.substring(tr+1);
 		}
 	} else if(URI.charAt(0) == '#'){ return URI.substring(1);}
+  //XXX vvv   replace prefix url with prefix if available
+  if(prefix) {
+  var pr = jOWL.NS.uri2prefix(ns);
+    if(pr) {
+      URI = pr + ':' + rs;
+    }
+  }
+  //XXX ^^^
 	if(array){ return [ns, rs];}
 	if(ns == jOWL.namespace){ return rs;}
 	return URI;
@@ -1382,10 +1414,26 @@ jOWL.getResource = function(resource, options){
 /** 
 * @param node jquery or html element.
 * @return the ontology type of the object.
+*
+* XXX this is wrong: 
+*  a) there can be more than one type for each object in ontology
+*  b) the type can be assigned by <rdf:type resource="typeIRI"> tag..
+* 
+* conclusion: either this is "tag type" not "ontology type" and then we have
+*            to treat it differently. or it is necessary to rewrite this to
+*           corelate with the semantics. 
 */
 jOWL.type = function(node){
 	var xmlNode = node.jquery ? node.get(0) : node;
-	switch(xmlNode.nodeName){
+  var type = jOWL.resolveURI($(xmlNode.selectSingleNode(__.rdf('type'))).RDF_Resource(), false, true);
+  //var type = null;// $(xmlNode.selectSingleNode(__.rdf('type'))).RDF_Resource();
+  type = type ? type : xmlNode.nodeName;
+  console.log('fn_type debug' +
+    ' type: ' + type +
+    ' about: ' + $(xmlNode).RDF_About() +
+    ' resource: ' + $(xmlNode).RDF_Resource() + 
+    ' subnode<rdf:type>: ' + jOWL.resolveURI($(xmlNode.selectSingleNode(__.rdf('type'))).RDF_Resource(), false, true) ); //XXX
+	switch(type){
 		case __.owl("Class") : return jOWL.Ontology.Class;
 		case __.rdfs("Class") : return jOWL.Ontology.Class; //test
 		case __.owl("Ontology") : return jOWL.Ontology;
@@ -1434,6 +1482,7 @@ jOWL.create = function(namespace, name, document){
 
 	var el = {
 		attr : function(namespace, name, value){
+      if(!namespace) throw "Empty namespace"; //XXX
 			if($.browser.msie){
 				var attribute = doc.createNode(2, namespace(name), namespace());
 				attribute.nodeValue = value;
