@@ -1,0 +1,41 @@
+
+/*owl_navbar*/
+.owl_navbar {border:1px solid steelblue;text-align:center;min-height:200px;}
+.owl_navbar span {margin-right:5px;}
+.owl_navbar_parents, .owl_navbar_focus, .owl_navbar_children {min-height:20px;}
+.owl_navbar_parents, .owl_navbar_children {background-color:#FFFFFF}
+.owl_navbar .external {font-weight:bold;color:red;font-style:italic;}
+/*autocomplete*/
+.owl_autocomplete_results{
+	display:none;min-height:20px;text-align:left;width:250px;z-index:20;position:absolute;
+	border: 1px solid WindowFrame; background-color: Window;
+	list-style-position: outside; list-style: none; margin: 0px;padding-left:0px;
+	}
+.owl_autocomplete_results li {margin: 0px;cursor: pointer;display: block;font: menu;font-size: 12px;padding: 2px 5px;}
+.owl_autocomplete_results .type{font-style:italic;float:right}
+.owl_autocomplete_results .termlabel{font-size:8px}
+.owl_autocomplete_results .name{font-weight:bold}
+.owl_autocomplete_results .hover{background-color: Highlight;color: HighlightText;}
+/*Treeview*/
+.owl_tree {border:1px solid steelblue;margin-top:5px;min-height:100px;background:#FFFFFF}
+.owl_treeview{list-style-type: none;}
+.owl_treeview .root > .name{ font-weight:bold;}
+.owl_treeview .focus>.name{font-weight:bold;color:steelblue}
+.owl_treeview ul.tv, .owl_treeview .tv ul { list-style-image:none; list-style-position:outside; list-style-type:none; margin:0pt; padding:0pt; }
+.owl_treeview .tv li { margin:0pt; padding:1px 0pt 3px 20px; position:relative; z-index:10; }
+.owl_treeview .tvie .name, .owl_treeview .tvic .name, .owl_treeview .tvilc .name, .owl_treeview .tvile .name, .owl_treeview .root .name { cursor:pointer; position:relative;}
+.owl_treeview .tv li, .owl_treeview .tv .tvi { background:transparent url(../img/treeView/dotted/tvi.gif) no-repeat scroll top left;}
+.owl_treeview .tv .tvic { background-image:url(../img/treeView/dotted/tvic.gif) ;}
+.owl_treeview .tv .tvie { background-image:url(../img/treeView/dotted/tvie.gif); }
+.owl_treeview .tv .tvil  { background-image:url(../img/treeView/dotted/tvil.gif); }
+.owl_treeview .tv .tvilc  { background-image:url(../img/treeView/dotted/tvilc.gif); }
+.owl_treeview .tv .tvile   { background-image:url(../img/treeView/dotted/tvile.gif); }
+.owl_treeview .tvload { background-image:url(../img/treeView/dotted/tviload.gif);}
+
+/**/
+.owl_UI {margin-top:0px;min-height:200px;}
+.owl_UI_box {margin-top:0px;border:1px solid steelblue;min-height:200px;}
+.owl_UI .title, .owl_UI_box .title{margin:0px;text-align:center;background-color:#F8F8FF}
+.owl_UI_content, .owl_UI_box .owl_UI_content {padding:5px;}
+.owl_UI_focus {background-color:#E6E6FA;font-weight:bold;}
+.owl_UI_white {background-color:#FFFFFF;}
